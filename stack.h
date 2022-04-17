@@ -8,7 +8,7 @@ class StackList : public ForwardList<T> {
 public:
     StackList();
     T top();
-    T empty();
+    bool empty();
     void push(T data);
     T pop();
     ~StackList(){};
@@ -24,7 +24,7 @@ T StackList<T>::top(){
 }
 
 template <class T>
-T StackList<T>::empty(){
+bool StackList<T>::empty(){
     return this->is_empty();
 }
 
