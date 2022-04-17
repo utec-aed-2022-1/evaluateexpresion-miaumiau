@@ -1,7 +1,7 @@
 #include <iostream>
 #include "solution.h"
 #include "tester.h"
-
+#include "stack.h"
 using namespace std;
 
 
@@ -28,6 +28,5 @@ int main()
 
     expr = "(6 + 8) 10 / (5 + 2) * 3 +";
     ASSERT(evaluate(expr).error == true, "The function evaluate is not working");
-
     return  0;  
 }
