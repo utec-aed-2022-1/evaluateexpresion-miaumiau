@@ -1,29 +1,178 @@
-/*
+#ifndef SOLUTION_H
+#define SOLUTION_H
 #include <iostream>
-
-
+#include <string>
+#include "forward.h"
+#include "stack.h"
 
 using namespace std;
 
 struct Result{
     double result;
     bool error;
-}
+};
 
+Result solvePostfixOperation(ForwardList<string>* &container_postfix){
+    StackList<double>* stack_operation = new StackList<double>();
+    int container_postfix_size = container_postfix->size();
+    for(int i=0; i<container_postfix_size; ++i){
+        string back_element = container_postfix->back();
+        if (back_element=="+" || back_element=="-" || back_element=="*" || back_element=="/"){
+            if (stack_operation->empty()){
+                //Error checking
+                Result obj_result;
+                obj_result.result = 0;
+                obj_result.error = true;
+                return obj_result;
+            }
+            double firstBackNumber= stack_operation->top();
+            stack_operation->pop();
+            if (stack_operation->empty()){
+                //Error checking
+                Result obj_result;
+                obj_result.result = 0;
+                obj_result.error = true;
+                return obj_result;
+            }
+            double secondBackNumber= stack_operation->top();
+            stack_operation->pop();
+            double result;
+            if (back_element=="+"){
+                result = secondBackNumber+firstBackNumber;
+            }
+            else if (back_element=="-"){
+                result = secondBackNumber-firstBackNumber;
+            }
+            else if (back_element=="*"){
+                result = secondBackNumber*firstBackNumber;
+            }
+            else if (back_element=="/"){
+                result = secondBackNumber/firstBackNumber;
+            }
+            stack_operation->push(result);
+            container_postfix->pop_back();
+        }
+        else{
+            double backNumber= stoi(back_element);
+            container_postfix->pop_back();
+            stack_operation->push(backNumber);
+        }
+    }
+    Result obj_result;
+    obj_result.result = stack_operation->top();
+    obj_result.error = false;
+    return obj_result;
+}
 
 Result evaluate(string input)
 {
-    // 1- descomponer el input y validar
-
-    // 2- convertir de Infijo a Postfijo
-    
-    // 3- resolver la expresion
-
-    //* Si no cumple la validacion retornar Result.error = true;
-
-    return Result();
+    StackList<char>* stack_symbols = new StackList<char>();
+    ForwardList<string>* container_postfix = new ForwardList<string>();
+    bool is_it_a_consecutive_number = false;
+    int counter = 0;
+    bool am_i_after_a_closing_parenthesis = false;
+    while(counter<input.length()){
+        char element = input[counter];
+        if (element=='(' || element==')'){
+            if (element=='('){
+                stack_symbols->push(element);
+            }
+            else if (element==')'){
+                bool has_not_been_finded_op_parenthesis = true;
+                while (has_not_been_finded_op_parenthesis){
+                    char top_element = stack_symbols->top();
+                    if (top_element == '('){
+                       has_not_been_finded_op_parenthesis = false;
+                    }
+                    else if (top_element == ')'){
+                        //Error checking
+                        Result obj_result;
+                        obj_result.result = 0;
+                        obj_result.error = true;
+                        return obj_result;
+                    }
+                    else{
+                        string s_top_element(1, top_element);
+                        container_postfix->push_front(s_top_element);
+                    }
+                    stack_symbols->pop();
+                }
+                am_i_after_a_closing_parenthesis = true;
+            }
+            ++counter;
+        }
+        else if (element=='+' || element=='-' || element=='*' || element=='/'){
+            if (stack_symbols->empty()){;}
+            else if (element=='+' || element=='-'){
+                bool exist_operator_of_greater_or_equal_precedence = true;
+                while (exist_operator_of_greater_or_equal_precedence && !stack_symbols->empty()){
+                    char top_element = stack_symbols->top();
+                    if (top_element=='+' || top_element=='-' || top_element=='*' || top_element=='/'){
+                        string s_top_element(1, top_element);
+                        container_postfix->push_front(s_top_element);
+                        stack_symbols->pop();
+                    }
+                    else{
+                        exist_operator_of_greater_or_equal_precedence=false;
+                    }
+                }
+            }
+            else if (element=='*' || element=='/'){
+                bool exist_operator_of_greater_or_equal_precedence = true;
+                while (exist_operator_of_greater_or_equal_precedence && !stack_symbols->empty()){
+                    char top_element = stack_symbols->top();
+                    if (top_element=='*' || top_element=='/'){
+                        string s_top_element(1, top_element);
+                        container_postfix->push_front(s_top_element);
+                        stack_symbols->pop();
+                    }
+                    else{
+                        exist_operator_of_greater_or_equal_precedence=false;
+                    }
+                }
+            }
+            stack_symbols->push(element);
+            ++counter;
+            if (am_i_after_a_closing_parenthesis){
+                am_i_after_a_closing_parenthesis = false;
+            }
+        }
+        else if (element==' '){++counter;}
+        else{
+            if (am_i_after_a_closing_parenthesis){
+                //Error checking
+                Result obj_result;
+                obj_result.result = 0;
+                obj_result.error = true;
+                return obj_result;
+            }
+            string number;
+            char searching_for_a_number = input[counter];
+            while (48<=searching_for_a_number && searching_for_a_number<=57){
+                string str_searching_for_a_number(1, searching_for_a_number);
+                number.append(str_searching_for_a_number);
+                ++counter;
+                searching_for_a_number = input[counter];
+            }
+            container_postfix->push_front(number);
+        }
+    }
+    while (!stack_symbols->empty()){
+          char top_element = stack_symbols->top();
+          if (top_element == '(' || top_element == ')'){
+              //Error checking
+              Result obj_result;
+              obj_result.result = 0;
+              obj_result.error = true;
+              return obj_result;
+          }
+          stack_symbols->pop();
+          string s_top_element(1, top_element);
+          container_postfix->push_front(s_top_element);
+    }
+      
+    return solvePostfixOperation(container_postfix);
 }
-*/
 
 /*
     containerPostfixToString(container_postfix){
@@ -77,3 +226,5 @@ Result evaluate(string input)
     }
 
 */
+
+#endif

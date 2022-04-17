@@ -9,8 +9,7 @@ template <typename T>
 class ForwardList : public List<T> {
     private:
         Node<T>* head;
-        int nodes;
-        
+        int nodes;    
     public:
         ForwardList() : List<T>() {}
 
@@ -23,8 +22,7 @@ class ForwardList : public List<T> {
             }
             nodes=0;            
         }
-
-    protected:
+        
         T front(){
             return head->data;
         }
@@ -217,7 +215,6 @@ class ForwardList : public List<T> {
         std::string name(){
             return "ForwardList";
         }
-        
 };
 
 #endif
